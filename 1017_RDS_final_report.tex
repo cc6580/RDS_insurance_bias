@@ -1,0 +1,580 @@
+\documentclass[10pt]{article}
+
+% if you need to pass options to natbib, use, e.g.:
+%     \PassOptionsToPackage{numbers, compress}{natbib}
+% before loading neurips_2020
+
+% ready for submission
+% \usepackage{neurips_2020}
+
+% to compile a preprint version, e.g., for submission to arXiv, add add the
+% [preprint] option:
+%     \usepackage[preprint]{neurips_2020}
+
+% to compile a camera-ready version, add the [final] option, e.g.:
+%     \usepackage[final]{neurips_2020}
+
+% to avoid loading the natbib package, add option nonatbib:
+\usepackage[nonatbib]{neurips_2020}
+
+\usepackage[utf8]{inputenc} % allow utf-8 input
+\usepackage[T1]{fontenc}    % use 8-bit T1 fonts
+\usepackage[hyphens,spaces,obeyspaces]{url}
+\usepackage{booktabs}       % professional-quality tables
+\usepackage[dvipsnames]{xcolor}
+\usepackage{graphicx}
+\usepackage{placeins} % to make sure floats do not cross sections
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{wrapfig}
+\usepackage{amsfonts}       % blackboard math symbols
+\usepackage{nicefrac}       % compact symbols for 1/2, etc.
+\usepackage{microtype}      % microtypography
+\usepackage[ruled, linesnumbered, vlined]{algorithm2e}
+\usepackage{hyperref}       % hyperlinks
+\newcommand\mycommfont[1]{\small\color{YellowGreen}#1}
+\SetCommentSty{mycommfont} % for changing comment styles in pseudo-code
+% Bibliography
+\usepackage[square,numbers]{natbib}
+\bibliographystyle{abbrvnat}
+
+\newcommand{\code}[1]{{\color{black}{\texttt{#1}}}} % making in-line codes easier    
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% \title{Generative Adversarial Networks for Electron Miscroscope Image Denoising}
+\title{Investigating Bias in Insurance Premium Prediction}
+
+% The \author macro works with any number of authors. There are two commands
+% used to separate the names and addresses of multiple authors: \And and \AND.
+%
+% Using \And between authors leaves it to LaTeX to determine where to break the
+% lines. Using \AND forces a line break at that point. So, if LaTeX puts 3 of 4
+% authors names on the first line, and the last on the second line, try using
+% \AND instead of \And before the third author name.
+
+\author{
+  Chuan Chen \\
+  \texttt{cc6580@nyu.edu} \\
+  Center for Data Science\\
+  New York University\\
+  New York, NY 10012 \\
+
+   \And
+  Yihang Zhang\\
+  \texttt{yz2865@nyu.edu} \\
+  Center for Data Science\\
+  New York University\\
+  New York, NY 10012 \\
+}
+
+\begin{document}
+
+\maketitle
+
+\setcounter{page}{1}
+
+\section{Background}
+
+% What is the purpose of this ADS? What are its stated goals?
+% If the ADS has multiple goals, explain any trade-offs that these goals may
+% introduce.
+
+As the importance of data collection and interpretation has been proven in the past decade, more and more companies, organizations, and government branches have invented and deployed the ADS(Automated Data System) to assist them to make decisions under various scenarios. However, the discussion of these ADS applications also arises, arguing such a technique is constantly bringing unfairness into production which exerts a negative impact on society from various angles. 
+
+The ADS focused in this project aims to use costumers past medical expenses and their features such as sex, age, BMI, and etc. to predict their future expenses, ultimately to help insurance companies make decisions on premium charges. The purpose of this project is to investigate the methodology and implementation of the ADS and if there exists bias where the system favors one group over another unfairly, such as charging a particular group with the same feature values over another group.
+
+\section{Input and Output}
+
+This data is obtained from the Machine Learning course website (Spring 2017) from Professor Eric Suess at California State University. It has 1338 samples, containing 6 features, age, sex, BMI, number of children, smoker, region, and 1 target variable, medical expenses, as the output. Some of the data generalizations and visualizations are shown below.
+\begin{center}
+\begin{tabular}{c|c | c}
+\label{tabu:data}
+variable & datatype & missing values\\
+\hline
+\hline
+age & integer & 0\\
+\hline
+sex & binary & 0\\
+\hline
+bmi & float & 0\\
+\hline
+children & integer & 0\\
+\hline
+smoker & binary & 0\\
+\hline
+region & category & 0\\
+\hline
+expenses & float & 0 
+\end{tabular}
+\end{center}
+
+The distribution of numerical features can be seen in figure \ref{fig:num_f}.
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=\linewidth]{imgs/num_features.png}
+    \caption{Boxplots for Numerical Features}
+    \label{fig:num_f}
+\end{figure}
+The distribution of numerical features can be seen in figure \ref{fig:dist_f}.
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=\linewidth]{imgs/num_f_dist.png}
+    \caption{Distribution of Numerical Features}
+    \label{fig:dist_f}
+\end{figure}
+The distribution of categorical features can be seen in figure \ref{fig:cat_f}.
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=\linewidth]{imgs/cat_features.png}
+    \caption{Distribution for Categorical Features}
+    \label{fig:cat_f}
+\end{figure}
+The pairwise correlation between each feature can shown in figure \ref{fig:corr}.
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=0.7\linewidth]{imgs/corr.png}
+    \caption{Pairwise Correlation Between Each Feature}
+    \label{fig:corr}
+\end{figure}
+
+The relationship between each feature and the target variable can also investigated and can be seen in figure \ref{fig:cause1} and \ref{fig:cause2}.
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=1\linewidth]{imgs/cause1.png}
+    \caption{Correlation Between Numerical Features and the Target Variable}
+    \label{fig:cause1}
+\end{figure}
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=1\linewidth]{imgs/cause2.png}
+    \caption{Correlation Between Categorical Features and the Target Variable}
+    \label{fig:cause2}
+\end{figure}
+
+The output of this ADS is called \code{expenses}, which is the medical expenditure a particular client has spent in the past. It is a continuous and numerical feature, ranging from 1121 to 63770. According to these plots, it is indicated that expenses are correlated with features like age, BMI, sex, etc. Therefore, to interpret the relationships better, we convert the target feature \code{expenses} into a binary feature for further exploration, which would be introduced in more detail in a later section. 
+\FloatBarrier
+
+\section{Implementation and Validation}
+
+% a. Describe data cleaning and any other pre-processing
+% b. Give high-level information about the implementation of the system
+% c. How was the ADS validated? How do we know that it meets its stated goal(s)?
+
+This data has already been cleaned beforehand, so no additional data cleaning was performed. The designer of the ADS system removed the feature \code{region} during pre-processing. Since \code{region} did not have exhibit any missing or outlier data, it was unclear why the creator did so.  But in order to reproduce the same ADS system, we removed this feature as well. To prepare the data for modeling, the categorical features were encoded as integers, including \code{sex} and \code{smoker}. Then, the data was split 75/25 into the train and test sets, and each feature was standardized to have a mean 0 and standard deviation of 1. 
+
+The ADS has implemented several different regressors, such as linear regression, polynomial regression, support vectors, decision tree, and random forest to predict the insurance premium of each individual in the dataset. Among these machine learning algorithms, the random forest was proved to be the one with the highest accuracy of 0.8969 on the test set and an RMSE of 4028.435 (lowest out of all the regressors). Thus, it was decided that the ADS should be implemented with random forest and is capable of predicting one's insurance premium with acceptable accuracy. 
+
+\section{Outcomes}
+
+% a. Analyze the effectiveness (accuracy) of the ADS by comparing its performance
+% across different sub-populations.
+% b. Select one or several fairness or diversity measures, justify your choice of these
+% measures for the ADS in question, and quantify the fairness or diversity of this
+% ADS.
+% c. Develop additional methods for analyzing ADS performance: think about stability,
+% robustness, performance on difficult or otherwise important examples (in the style of LIME), or any other property that you believe is important to check for this ADS.
+
+Although the ADS achieved relatively good accuracy, no other error metric was used by the designer to determine model performance and make model selections. Thus, we will investigate further into the model performance with various performance, fairness, and robustness metrics to help determine whether this ADS is fit to be deployed in the industry.
+
+To help with investigation, we also added an additional ``target'' variable called \code{binary\_expense}. The intuition for this variable stems from the decision part of the ADS. When stakeholders such as insurance companies are handed the predicted medical expenses of their potential clients, they will unavoidably make some decision on whether the expenses are considered high or low. Upon inspecting our full data, the mean of all recorded expenses is around \$13,270, and the median is around \$9,382. This suggests that we have some outliers with very high medical expenses present. Thus, we chose somewhat of a mid-point and categorized expenses that are greater than \$10,000 as \{\code{binary\_expense:1}\}, which signifies high medical expenses and is also our unfavorable outcome (from the clients perspective), and expenses that are less than or equal to \$10,000 as \{\code{binary\_expense:0}\}, which signifies low medical expenses and is also our unfavorable outcome (from the clients perspective). After training and predicting using the model, we also reintroduced the feature \code{region} into our dataset to investigate its relationship between the two target variables.
+
+\subsection{Sub-Populations Across Features}
+Before we can investigate the performance of the ADS across sub-populations, we must first define what they are. We examined the binary expense outcomes across different values for each of our features to determine which feature values are considered as more privileged (having low medical expenses/insurance premiums) than others. 
+
+Figure \ref{fig:age_sub} shows the distribution of binary outcomes across all ages for both the training set (with true labels) and the test set (with predicted labels). We can see that around the average age of 39 there starts to exhibit a separation of high and low expense trends. Thus, we chose 39 as the threshold that separates our privileged and unprivileged age groups. A similar analysis was done for the other two numerical features \code{BMI} and \code{children}. Their analysis can be found in figure \ref{fig:sub_bmi} and figure \ref{fig:sub_child} in appendix \ref{app:4}.
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width = \linewidth]{imgs/sub_age.png}
+    \caption{Distribution of Binary Outcome Across Age}
+    \label{fig:age_sub}
+\end{figure}
+
+For categorical variables such as \code{smoker}, we plotted the distributions of binary outcomes and the box plot of numerical outcomes across groups. They are shown in figure \ref{fig:sub_smoker_dist} and \ref{fig:sub_smoker_box}.  We can see that \{\code{smoker:yes}\} definitely have high expenses while \{\code{smoker:no}\} does not. Thus, we chose \{\code{smoker:yes}\} as our unprivileged group. Similar analysis was done for the other two categorical features \code{sex} and \code{region}. Their analysis can be found in appendix \ref{app:4}.
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=\linewidth]{imgs/sub_smoker_dist.png}
+    \caption{Distribution of Binary Outcome Across Smoker}
+    \label{fig:sub_smoker_dist}
+\end{figure}
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=\linewidth]{imgs/sub_smoker_box.png}
+    \caption{Box Plot of Numerical Outcome Across Age}
+    \label{fig:sub_smoker_box}
+\end{figure}
+
+In summary, our sub-population per feature are divided as shown in table \ref{tab:sub_pop}:
+
+\begin{table}
+\centering
+\begin{tabular}{c|c|c}
+     feature & privileged (low expense) & unprivileged (high expense) \\
+     \hline
+     \hline
+     age & $\leq 39$ & $>39$ \\
+     \hline
+     BMI & $\leq 30$ & $>30$ \\
+     \hline
+     children & \(> 1\) \(\leq 1\) \\
+     \hline
+     sex & male & female \\
+     \hline
+     smoker & no & yes \\
+     \hline
+     region & southwest & southeast, northwest, northeast \\
+     \hline
+\end{tabular}
+\vspace{3pt}
+\caption{Sub-Population Across Features}
+\label{tab:sub_pop}
+\end{table}
+
+
+\FloatBarrier
+\subsection{Accuracy Across Sub-Populations}
+Both numerical accuracy (\code{r2\_score} computed using actual \code{expenses} and \code{predicted\_expenses}) and binary accuracy (\code{accuracy\_score} computed using actual \code{binary\_expenses} and \code{predicted\_binary\_expenses}) used as accuracy measures. The overall accuracy of the dataset are shown in table \ref{tab:acc_all}.
+\begin{table}[h!]
+    \centering
+    \begin{tabular}{c|c|c}
+         set & regression accuracy & binary accuracy \\
+         \hline
+         \hline
+         train & \(0.878\) & \(0.874\)\\
+         \hline
+         test & \(0.897\) & \(0.872\)
+    \end{tabular}
+    \vspace{3pt}
+    \caption{Accuracy measures of the entire population}
+    \label{tab:acc_all}
+\end{table}
+Interestingly, both accuracy measures of the test set are very similar, and even slightly better, than of the train set. This suggests that our model did not over-fit.
+
+The same accuracy measures were computed for sub-populations across each feature. Their in-detailed reports can be seen in table \ref{tab:acc_age} through \ref{tab:acc_region} in appendix \ref{app:4}. To better assess whether there is a difference in accuracy between privileged and unprivileged groups, the difference between their accuracy measures was computed and plotted in figure \ref{fig:acc_diff}. A dot below the dotted line signifies that the unprivileged group has less accuracy than the privileged group. While a dot above the dotted line suggests otherwise. From the figure, we can see that 3 features deviate more from the dotted line than others, \code{age, BMI, children}. More specifically, we achieve less accuracy for the unprivileged age group ($>39$), more accuracy for the unprivileged BMI group ($>30$), and more accuracy for the unprivileged smoker group (\{\code{smoker: yes}\}). This suggests that unprivileged groups for \code{bmi} and \code{smoker} might exhibit more distinctive markers that lead to a more accurate prediction, while unprivileged groups for \cpde{age} exhibit less distinctive markers. 
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=\linewidth]{imgs/acc_diff.png}
+    \caption{Difference of accuracy measures between groups}
+    \label{fig:acc_diff}
+\end{figure}
+
+
+
+\FloatBarrier
+\subsection{Misclassification Across Sub-Populations}
+Besides accuracy, which shows the model's ability to make predictions for a specific sub-population, misclassification rates made by the model were also assessed across the same sub-populations to determine whether or not it presents a bias. In addition to binary accuracy, 3 other metrics were used which are computed based on the binary results: selection rate, FNR, and FPR. Their in-detailed reports can be seen in figure \ref{fig:mis_age} through \ref{fig:mis_region} in appendix \ref{app:4}. To better assess whether there is a difference in classification rates between privileged and unprivileged groups, the difference between their measures was computed and plotted in figure \ref{fig:mis_5}. 
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=\linewidth]{imgs/mis_5.png}
+    \caption{Difference in Misclassification Rate Across Sub-populations}
+    \label{fig:mis_5}
+\end{figure}
+
+A dot below the dotted line signifies that the unprivileged group has less rate than the privileged group. While a dot above the dotted line suggests otherwise. For selection rate, we can see clearly that unprivileged groups of \code{age} and \code{smoker} were predicted to have less favorable outcomes (low expense). This is somewhat expected since these unprivileged groups had higher medical expenses in the training data which lead to higher medical expenses being predicted. The same unprivileged groups of \code{age} and \code{smoker} had less FNR rates than their privileged counterparts. This suggests that if a person who has high expenses were falsely predicted to have low expenses, he/she is likely to be young and/or not smoking, rather than old and/or smoking. 
+
+Surprisingly, only the unprivileged \code{age} group had significantly higher FPR than the privileged group, while the unprivileged \smoker{smoker} group had lower FPR than the privileged group. This means that older people are more likely to be classified as having high expenses when in reality they don't. Following the same logic, we would also expect to see a higher FPR for the unprivileged smoker group, where smokers are likely to be classified as having high expenses when in reality they don't. But upon closer inspection of the data, this lower FPR rate makes sense. Our model made no classification mistakes for the unprivileged smoker group. All smokers in the test set were predicted to have high expenses, and all of them did have high expenses. Thus, the ADS might have gotten lucky in the sense that its bias towards smokers was not validated with sufficient data. We conclude that the low FPR rate does not rule out the possibility of the ADS being biased towards smokers during deployment. 
+
+\FloatBarrier
+\subsection{Statistical Fairness Across Sub-Populations}
+Besides the accuracy metrics, We also would like to explore the Statistical Disparity between all unprivileged groups and privileged groups. Statistical Disparity is helpful to examine whether there are favorable outcomes received by the privileged group. In order to grasp a comprehensive understanding of our data and model, the Statistical Fairness is checked both on the training set and the test set because this would give a better insight of whether pre-existing bias exists in the dataset and it has been reinforced by the ADS. To examine Statistical Fairness, we mainly focus on three metrics, including Mean Difference, Error Rate Difference and Disparate Impact. Mean Difference is calculated by mean label value on unprivileged instances - mean label value on privileged instances while Error Rate Difference is calculated by error rate of unprivileged instances minus error rate of privileged instances. The variation of these two metrics across all sub-populations is shown in figure \ref{fig:fair_diff}. Disparate Impact is computed as the ratio of the rate of favorable outcomes for the unprivileged group to that of the privileged group and its variation across all sub-populations is shown in figure \ref{fig:disp}. The red dashed line in the figures represents the ideal value of each metric.
+
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width = \linewidth]{imgs/fairness_diff.png}
+    \caption{Variation of Mean Difference and Error rate Difference Across Sub-populations}
+    \label{fig:fair_diff}
+\end{figure}
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width = 0.55\linewidth]{imgs/disp_imp.png}
+    \caption{Variation of Disparate Impact Across Sub-populations }
+    \label{fig:disp}
+\end{figure}
+
+According to our observation, there are obvious biases existed within the sub-populations of \code{age} and \code{smoker} while minor bias existed within the sub-population of \code{bmi}. Comparing the Mean Difference and the Disparate Impact in these sub-populations on the training set and the test set, it is indicated that the ADS has enlarged the unfairness between the sub-populations of \code{age} and \code{smoker} since the Mean Difference and the Disparate Impact on the test set are lower than on the training set. In other words, the privileged groups in these two sub-populations are apparently receiving favorable outcomes against the unprivileged groups.
+
+\FloatBarrier
+\subsection{Stability}
+The stability of a model signifies whether or not the model is robust to uncertainties and noise. Thus, to assess whether or not this ADS is stable, we added random noise drawn from Gaussian distributions at different noise levels to observe the change in its predictions. Since it is not reasonable to add noise to categorical variables, we have only added noise to our numerical features \code{age, BMI, children}. In all figures, the similarity is measured as the difference between the predictions on the original test set and the predictions on the test set with added noise to a particular feature. 
+
+In figure \ref{fig:noi_age}, we can see that both regression and binary predictions show an almost linear decrease in similarity as noise level increases. This suggests that our predictions are somewhat sensitive to the noises in age. If the age of clients is not reported accurately, it may impact the accuracy of our prediction. However, in figure \ref{fig:noi_2} we observe different behavior. As noise increase for \code{bmi}, the predicted numerical expenses becomes very different, but the predicted binary outcome stays the same. This suggests that while noisy \code{bmi} values may impact the exact predicted medical expense, it is unlikely to change whether a person is classified as having high expense or low expense. As noise increase for \code{children}, both the predicted numerical expenses and the predicted binary outcome stay very similar. This suggests that while noisy \code{children} values are unlikely predictions in any way, and our model produces stable results. 
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=\0.55\linewidth]{imgs/noi_age.png}
+    \caption{Stability in Age}
+    \label{fig:noi_age}
+\end{figure}
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=\linewidth]{imgs/noi_2.png}
+    \caption{Stability in BMI and Children}
+    \label{fig:noi_2}
+\end{figure}
+
+\FloatBarrier
+\section{Summary}
+
+% a. Do you believe that the data was appropriate for this ADS?
+% b. Do you believe the implementation is robust, accurate, and fair? Discuss your
+% choice of accuracy and fairness measures, and explain which stakeholders may
+% find these measures appropriate.
+% c. Would you be comfortable deploying this ADS in the public sector, or in the
+% industry? Why so or why not?
+% d. What improvements do you recommend to the data collection, processing, or
+% analysis methodology?
+
+The data used by this ADS is appropriate since we believe the data is real-world-reflective even if some biases have been observed in the data. Because it is truly the fact that elder people and smokers are more likely to have worse physical conditions and encounter more health issues. Therefore, the pre-existing biases observed in the data cannot be attributed to improper data collection. However, the fairness metrics indicate the privileged groups in these two sub-populations receive favorable outcomes against the unprivileged groups and the ADS has somehow worsened such discrimination. This would benefit the insurance companies since some smokers and elders with great physical conditions might also be charged a high insurance premium while impairing these applicants. In terms of the accuracy metrics, the overall accuracy of both the regression model and binary model is similarly high, around 0.88, while it is more important to pay attention to the misclassification metrics, FPR and FNR, across sub-populations. FPR gives insight into the rate of the low-premium applicants being misclassified as the high-premium group while FNR vice versa. Therefore, high FPR benefits the insurance companies and harms the applicants, while high FNR benefits the applicants and harms the insurance companies. From the perspective of stability, our metrics indicate that the ADS performance is quite stable on the variation of \code{age} and \code{bmi}.
+
+Overall, we feel comfortable deploying this ADS in the industry. One reason is that the dataset itself does not seem to have issues in collecting methodology and no obvious bias has been blended in, which is capable of reflecting the real fact. Secondly, considering that all sorts of metrics, including accuracy, fairness, misclassification, and stability, are in good shape, we believe the model generally shows a perfect performance and reaches the stated goal. However, there is still some improvement we recommend for this ADS. Firstly, the original model did not implement parameter tuning for the random forest. It is very likely that the model could have a better performance in all aspects if a better parameter configuration is found. Secondly, techniques such as Disparate Impact Remover, Reject Option Classification could be applied to mitigate the observed unfairness in the ADS and get more balanced FPR and FNR across all sub-populations.
+
+\FloatBarrier
+\newpage
+\appendix
+
+
+\section{Outcomes}
+\label{app:4}
+\subsection{Figures}
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width = \linewidth]{imgs/sub_bmi.png}
+    \caption{Distribution of Binary Outcome Across BMI}
+    \label{fig:sub_bmi}
+\end{figure}
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width = \linewidth]{imgs/sub_child.png}
+    \caption{Distribution of Binary Outcome Across Children}
+    \label{fig:sub_child}
+\end{figure}
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=\linewidth]{imgs/sub_sex_dist.png}
+    \caption{Distribution of Binary Outcome Across Sex}
+    \label{fig:sub_sex_dist}
+\end{figure}
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=\linewidth]{imgs/sub_sex_box.png}
+    \caption{Box Plot of Numerical Outcome Across Age}
+    \label{fig:sub_sex_box}
+\end{figure}
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=\linewidth]{imgs/sub_region_dist.png}
+    \caption{Distribution of Binary Outcome Across Region}
+    \label{fig:sub_region_dist}
+\end{figure}
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=\linewidth]{imgs/sub_region_box.png}
+    \caption{Box Plot of Numerical Outcome Across Region}
+    \label{fig:sub_region_box}
+\end{figure}
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=\linewidth]{imgs/mis_age.png}
+    \caption{Misclassification Rate Across Age}
+    \label{fig:mis_age}
+\end{figure}
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=\linewidth]{imgs/mis_bmi.png}
+    \caption{Misclassification Rate Across BMI}
+    \label{fig:mis_bmi}
+\end{figure}
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=\linewidth]{imgs/mis_child.png}
+    \caption{Misclassification Rate Across Children}
+    \label{fig:mis_child}
+\end{figure}
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=\linewidth]{imgs/mis_sex.png}
+    \caption{Misclassification Rate Across Sex}
+    \label{fig:mis_sex}
+\end{figure}
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=\linewidth]{imgs/mis_smoker.png}
+    \caption{Misclassification Rate Across Smoker}
+    \label{fig:mis_smoker}
+\end{figure}
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=\linewidth]{imgs/mis_region.png}
+    \caption{Misclassification Rate Across Region}
+    \label{fig:mis_region}
+\end{figure}
+
+\FloatBarrier
+\subsection{Tables}
+\begin{table}[h!]
+    \centering
+    \begin{tabular}{c|c|c}
+         group & regression accuracy for train& regression accuracy for test\\
+         \hline
+         \hline
+         privileged & \(0.881\) & \(0.854\)\\
+         \hline
+         unprivileged & \(0.860\) & \(0.909\)
+    \end{tabular}
+    \vspace{3pt}
+    \begin{tabular}{c|c|c}
+          & \hphantom{re}binary accuracy for train\hphantom{re}& \hphantom{re}binary accuracy for test\hphantom{re}\\
+         \hline
+         \hline
+         privileged & \(0.928\) & \(0.930\)\\
+         \hline
+         unprivileged & \(0.820\) & \(0.811\)
+    \end{tabular}
+    \vspace{3pt}
+    \caption{Accuracy measures of the Age sub-population}
+    \label{tab:acc_age}
+\end{table}
+
+\begin{table}[h!]
+    \centering
+    \begin{tabular}{c|c|c}
+         group & regression accuracy for train& regression accuracy for test\\
+         \hline
+         \hline
+         privileged & \(0.741\) & \(0.682\)\\
+         \hline
+         unprivileged & \(0.913\) & \(0.932\)
+    \end{tabular}
+    \vspace{3pt}
+    \begin{tabular}{c|c|c}
+          & \hphantom{re}binary accuracy for train\hphantom{re}& \hphantom{re}binary accuracy for test\hphantom{re}\\
+         \hline
+         \hline
+         privileged & \(0.885\) & \(0.843\)\\
+         \hline
+         unprivileged & \(0.864\) & \(0.895\)
+    \end{tabular}
+    \vspace{3pt}
+    \caption{Accuracy measures of the BMI sub-population}
+    \label{tab:acc_bmi}
+\end{table}
+
+\begin{table}[h!]
+    \centering
+    \begin{tabular}{c|c|c}
+         group & regression accuracy for train& regression accuracy for test\\
+         \hline
+         \hline
+         privileged & \(0.870\) & \(0.877\)\\
+         \hline
+         unprivileged & \(0.880\) & \(0.906\)
+    \end{tabular}
+    \vspace{3pt}
+    \begin{tabular}{c|c|c}
+          & \hphantom{re}binary accuracy for train\hphantom{re}& \hphantom{re}binary accuracy for test\hphantom{re}\\
+         \hline
+         \hline
+         privileged & \(0.898\) & \(0.862\)\\
+         \hline
+         unprivileged & \(0.830\) & \(0.877\)
+    \end{tabular}
+    \vspace{3pt}
+    \caption{Accuracy measures of the Children sub-population}
+    \label{tab:acc_child}
+\end{table}
+
+\begin{table}[h!]
+    \centering
+    \begin{tabular}{c|c|c}
+         group & regression accuracy for train& regression accuracy for test\\
+         \hline
+         \hline
+         privileged & \(0.889\) & \(0.919\)\\
+         \hline
+         unprivileged & \(0.864\) & \(0.853\)
+    \end{tabular}
+    \vspace{3pt}
+    \begin{tabular}{c|c|c}
+          & \hphantom{re}binary accuracy for train\hphantom{re}& \hphantom{re}binary accuracy for test\hphantom{re}\\
+         \hline
+         \hline
+         privileged & \(0.874\) & \(0.863\)\\
+         \hline
+         unprivileged & \(0.874\) & \(0.882\)
+    \end{tabular}
+    \vspace{3pt}
+    \caption{Accuracy measures of the Sex sub-population}
+    \label{tab:acc_sex}
+\end{table}
+
+\begin{table}[h!]
+    \centering
+    \begin{tabular}{c|c|c}
+         group & regression accuracy for train& regression accuracy for test\\
+         \hline
+         \hline
+         privileged & \(0.482\) & \(0.458\)\\
+         \hline
+         unprivileged & \(0.932\) & \(0.885\)
+    \end{tabular}
+    \vspace{3pt}
+    \begin{tabular}{c|c|c}
+          & \hphantom{re}binary accuracy for train\hphantom{re}& \hphantom{re}binary accuracy for test\hphantom{re}\\
+         \hline
+         \hline
+         privileged & \(0.843\) & \(0.837\)\\
+         \hline
+         unprivileged & \(1.0\) & \(1.0\)
+    \end{tabular}
+    \vspace{3pt}
+    \caption{Accuracy measures of the Smoker sub-population}
+    \label{tab:acc_smoker}
+\end{table}
+
+\begin{table}[h!]
+    \centering
+    \begin{tabular}{c|c|c}
+         group & regression accuracy for train& regression accuracy for test\\
+         \hline
+         \hline
+         privileged & \(0.879\) & \(0.890\)\\
+         \hline
+         unprivileged & \(0.873\) & \(0.917\)
+    \end{tabular}
+    \vspace{3pt}
+    \begin{tabular}{c|c|c}
+          & \hphantom{re}binary accuracy for train\hphantom{re}& \hphantom{re}binary accuracy for test\hphantom{re}\\
+         \hline
+         \hline
+         privileged & \(0.877\) & \(0.875\)\\
+         \hline
+         unprivileged & \(0.866\) & \(0.859\)
+    \end{tabular}
+    \vspace{3pt}
+    \caption{Accuracy measures of the Region sub-population}
+    \label{tab:acc_region}
+\end{table}
+
+
+\FloatBarrier
+
+\end{document}
