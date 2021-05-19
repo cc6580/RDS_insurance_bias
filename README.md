@@ -1,4 +1,4 @@
-# RDS_insurance_bias
+# Investigating Bias in Insurance Premium Prediction
 
 As the importance of data collection and interpretation has been proven in the past decade, more and more companies, organizations, 
 and government branches have invented and deployed the ADS(Automated Data System) to assist them 
