@@ -20,4 +20,4 @@ The code we will be analyzing for this project is found [here](https://www.kaggl
 
 # notebooks
 * [1_1_EDA.ipynb](https://github.com/cc6580/RDS_insurance_bias/blob/main/codes/1_1_EDA.ipynb): explores distributions of features and correlations to the target variable.
-* [1_2_ADS_Implementation.ipynb](https://github.com/cc6580/RDS_insurance_bias/blob/main/codes/1_2_ADS_Implementation.ipynb): analyze the fairness of the model by assessing its accuracy, misclassification errors, statistical fairness, and stability across privileged and unprivileged subpopulations. 
+* [1_2_ADS_Implementation.ipynb](https://github.com/cc6580/RDS_insurance_bias/blob/main/codes/1_2_ADS_Implementation.ipynb): analyzes the fairness of the model by assessing its accuracy, misclassification errors, statistical fairness, and stability across privileged and unprivileged subpopulations. 
