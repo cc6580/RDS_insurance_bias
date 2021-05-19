@@ -11,3 +11,6 @@ ultimately to help insurance companies make decisions on premium charges.
 The purpose of this project is to investigate the methodology and implementation of the ADS and 
 assess whether there exists bias where the system favors one group over another unfairly, 
 such as charging a particular group with the same feature values over another group.
+
+# Data
+The data we used can be found here (here)[https://www.kaggle.com/noordeen/insurance-premium-prediction]
